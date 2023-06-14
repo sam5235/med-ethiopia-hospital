@@ -38,7 +38,7 @@ const getDateStr = (date) => {
   )}`;
 };
 
-function AppointmentCard({appointments, setAppointments}) {
+function AppointmentCard({ appointments, setAppointments }) {
   const { user } = useAuth();
   const [selectedAppnt, setSelectedAppnt] = useState();
   const [isLoading, setIsLoading] = useState(true);
@@ -138,7 +138,7 @@ function AppointmentCard({appointments, setAppointments}) {
 
         {appointments.map((appointment, index) => {
           const percentage =
-            appointment.patientsId.length / appointment.max_patients;
+            (appointment.patientsId.length / appointment.max_patients) * 100;
           return (
             <Card boxShadow="lg" key={index} width="100%" height="100px" my={5}>
               <CardBody>
@@ -207,7 +207,7 @@ function AppointmentCard({appointments, setAppointments}) {
                   </Button>
                 </Flex>
               </CardBody>
-              <Progress colorScheme="green" size="sm" value={percentage + 30} />
+              <Progress colorScheme="green" size="sm" value={percentage} />
             </Card>
           );
         })}

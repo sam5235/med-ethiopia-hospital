@@ -21,7 +21,8 @@ export const filterAllPatients = async (phone) => {
   const Lists = [];
   const phoneq = query(
     collection(db, "patients"),
-    where("phone", ">=", phone), where('phone', "<=", phone + '\uf8ff')
+    where("phone", ">=", phone),
+    where("phone", "<=", phone + "\uf8ff")
   );
 
   const querySnapshot = await getDocs(phoneq);
@@ -35,8 +36,7 @@ export const getPatientById = async (id) => {
   const patient = await getDoc(doc(db, "patients", id));
   console.log(patient.data(), id);
   return patient.data();
-
-}
+};
 
 export const getPatients = async () => {
   const patients = [];
@@ -54,7 +54,8 @@ export const filterPatients = async (queries) => {
 
   const nameq = query(
     collection(db, "patients"),
-    where("name", "==", queries),
+    where("name", ">=", queries),
+    where("name", "<=", queries + "\uf8ff"),
     filterMyPatients()
   );
   const phoneq = query(
@@ -70,7 +71,7 @@ export const filterPatients = async (queries) => {
     console.log(doc);
     Lists.push(parsePatient(doc));
   });
-  
+
   const querySnapshot2 = await getDocs(phoneq);
   querySnapshot2.forEach((doc) => {
     // doc.data() is never undefined for query doc snapshots
@@ -98,4 +99,14 @@ export const RegisterPatient = async (List, onFinish, onFail) => {
       onFail();
       console.log({ error });
     });
+};
+
+export const getMultiplePatientById = async (ids) => {
+  const patients = [];
+
+  for (const id of ids) {
+    patients.push(await getPatientById(id));
+  }
+
+  return patients;
 };
