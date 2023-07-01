@@ -1,6 +1,13 @@
-import Head from 'next/head'
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 export default function Home() {
+  const { push } = useRouter();
+
+  useEffect(() => {
+    push("/patients");
+  }, []);
   return (
     <>
       <Head>
@@ -10,5 +17,5 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
     </>
-  )
+  );
 }

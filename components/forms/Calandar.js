@@ -1,12 +1,25 @@
-import { Box, Flex, useColorModeValue } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useColorModeValue,
+  useDisclosure,
+} from "@chakra-ui/react";
 
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
+import { useState } from "react";
+import CalanderModal from "./CalanderModal";
 
 moment.locale("en-GB");
 const localizer = momentLocalizer(moment);
-
-
 
 const getDate = (date, hr, m) => {
   return new Date(
@@ -19,7 +32,7 @@ const getDate = (date, hr, m) => {
   );
 };
 
-const getEvent = (date, start, end, id) => {
+const getEvent = (date, start, end, id, appt) => {
   // console.log({ date, start, end, id });
   const time = {
     "08:00 AM": getDate(date, 8, 0),
@@ -34,31 +47,55 @@ const getEvent = (date, start, end, id) => {
     title: `${start} - ${end}`,
     start: time[start],
     end: time[end],
+    ...appt,
   };
 };
 
 const Calandar = ({ appointments = [] }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const bgColor = useColorModeValue("#fff", "gray.800");
-  const eventsData = appointments.map((appt, id) => {
-    return getEvent(new Date(appt.date), appt.start_time, appt.end_time, id);
-  });
+  const [selectedEvent, setSelectedEvent] = useState({});
 
-  console.log({ eventsData });
+  const eventsData = appointments
+    .filter((appt) => appt.patientsId.length > 0)
+    .map((appt, id) => {
+      return getEvent(
+        new Date(appt.date),
+        appt.start_time,
+        appt.end_time,
+        id,
+        appt
+      );
+    });
 
-  const handleSelect = ({ start, end }) => {
-    const title = window.prompt("New Event name");
-    if (title)
-      setEventsData([
-        ...eventsData,
-        {
-          start,
-          end,
-          title,
-        },
-      ]);
-  };
   return (
     <Flex mt={5} h="full">
+      <Modal
+        size="xl"
+        isOpen={isOpen && selectedEvent}
+        onClose={() => {
+          onClose();
+          setSelectedEvent();
+        }}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>
+            {selectedEvent?.title} -{" "}
+            {new Date(selectedEvent?.date).toDateString()}
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {selectedEvent && <CalanderModal event={selectedEvent} />}
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       <Box className="App" w="full" h="full">
         <Calendar
           views={["day", "agenda", "work_week", "month"]}
@@ -75,8 +112,11 @@ const Calandar = ({ appointments = [] }) => {
             boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
             width: "100%",
           }}
-          onSelectEvent={(event) => alert(event.title)}
-          onSelectSlot={handleSelect}
+          onSelectEvent={(event) => {
+            setSelectedEvent(event);
+            console.log(event);
+            onOpen();
+          }}
         />
       </Box>
     </Flex>

@@ -7,22 +7,58 @@ import {
   Input,
   Stack,
   useColorModeValue,
-  HStack,
   Avatar,
-  AvatarBadge,
-  IconButton,
   Center,
+  useToast,
 } from "@chakra-ui/react";
-import { SmallCloseIcon } from "@chakra-ui/icons";
+import { useAuth } from "../context/AuthContext";
+import { useEffect, useState } from "react";
+import { getMyProfileData, updateProfile } from "../firebase/profileServices";
 
-export default function UserProfileEdit() {
+export default function HealthcareProfileEdit() {
+  const { user } = useAuth();
+  const toast = useToast();
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleOnUpdate = () => {
+    const profile = {
+      name,
+      address,
+    };
+    setIsLoading(true);
+    updateProfile(profile).then(() => {
+      toast({
+        title: "Operation Success!",
+        description: "Profile Updated Successfuly",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      setIsLoading(false);
+    });
+  };
+
+  useEffect(() => {
+    const fetchMyData = () => {
+      setIsLoading(true);
+      getMyProfileData().then((data) => {
+        setName(data.name);
+        setEmail(data.email || user.email);
+        setAddress(data.address);
+        setIsLoading(false);
+      });
+    };
+
+    if (user !== null) {
+      fetchMyData();
+    }
+  }, [user]);
+
   return (
-    <Flex
-      minH={"100vh"}
-      align={"center"}
-      justify={"center"}
-      // bg={useColorModeValue("gray.50", "gray.800")}
-    >
+    <Flex minH={"100vh"} align={"center"} justify={"center"}>
       <Stack
         spacing={4}
         w={"full"}
@@ -34,58 +70,64 @@ export default function UserProfileEdit() {
         my={12}
       >
         <Heading lineHeight={1.1} fontSize={{ base: "2xl", sm: "3xl" }}>
-          Healthcare Profile Edit
+          Hospiital Profile Edit
         </Heading>
         <FormControl id="userName">
-          <FormLabel>User Icon</FormLabel>
-          <Stack direction={["column", "row"]} spacing={6}>
-            <Center>
-              <Avatar size="xl" src="https://bit.ly/sage-adebayo">
-                <AvatarBadge
-                  as={IconButton}
-                  size="sm"
-                  rounded="full"
-                  top="-10px"
-                  colorScheme="red"
-                  aria-label="remove Image"
-                  icon={<SmallCloseIcon />}
-                />
-              </Avatar>
-            </Center>
-            <Center w="full">
-              <Button w="full">Change Icon</Button>
-            </Center>
-          </Stack>
+          <Center>
+            <Avatar size="xl" name={name} />
+          </Center>
         </FormControl>
-        <FormControl id="userName" isRequired>
-          <FormLabel>User name</FormLabel>
+        <FormControl mb={1} isRequired>
+          <FormLabel fontSize="sm">Full Name</FormLabel>
           <Input
-            placeholder="UserName"
-            _placeholder={{ color: "gray.500" }}
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
             type="text"
           />
         </FormControl>
-        <FormControl id="email" isRequired>
-          <FormLabel>Email address</FormLabel>
+
+        <FormControl mb={1} isRequired>
+          <FormLabel fontSize="sm">Email</FormLabel>
           <Input
-            placeholder="your-email@example.com"
-            _placeholder={{ color: "gray.500" }}
+            value={email}
+            isDisabled
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
             type="email"
           />
         </FormControl>
-        <FormControl id="password" isRequired>
-          <FormLabel>Password</FormLabel>
+
+        {/* <FormControl mb={1} isRequired>
+          <FormLabel fontSize="sm">Phone</FormLabel>
           <Input
-            placeholder="password"
-            _placeholder={{ color: "gray.500" }}
-            type="password"
+            value={phone}
+            onChange={(e) => {
+              setPhone(e.target.value);
+            }}
+            type="number"
+          />
+        </FormControl> */}
+
+        <FormControl mb={20} isRequired>
+          <FormLabel fontSize="sm">Address</FormLabel>
+          <Input
+            value={address}
+            onChange={(e) => {
+              setAddress(e.target.value);
+            }}
+            type="text"
           />
         </FormControl>
-        <Stack spacing={6} direction={["column", "row"]}>
+
+        <Stack pt={5} spacing={6} direction={["column", "row"]}>
           <Button
             bg={"red.400"}
             color={"white"}
             w="full"
+            isDisabled={isLoading}
             _hover={{
               bg: "red.500",
             }}
@@ -93,12 +135,11 @@ export default function UserProfileEdit() {
             Cancel
           </Button>
           <Button
-            bg={"blue.400"}
-            color={"white"}
+            colorScheme="brand"
             w="full"
-            _hover={{
-              bg: "blue.500",
-            }}
+            isDisabled={isLoading}
+            isLoading={isLoading}
+            onClick={handleOnUpdate}
           >
             Submit
           </Button>

@@ -94,10 +94,10 @@ const Patients = () => {
       <Grid
         templateRows="repeat(2, 1fr)"
         templateColumns="70% 30%"
-        height="1200px"
+        // height="1200px"
         gap={4}
       >
-        <GridItem height="2000px">
+        <GridItem>
           <Grid gap={4} templateColumns="repeat(12, 1fr)">
             {sortedPatients.map((user, index) => (
               <GridItem key={index} colSpan="4">

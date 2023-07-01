@@ -26,6 +26,8 @@ import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
 import PatientForm from "../components/common/patientForm";
 import AddRecords from "../components/modals/AddRecordModal";
+import { useEffect, useState } from "react";
+import { getMyProfileData } from "../firebase/profileServices";
 
 const Navbar = () => {
   const router = useRouter();
@@ -36,6 +38,18 @@ const Navbar = () => {
     onOpen: openForm,
     onClose: closeForm,
   } = useDisclosure();
+
+  const [userData, setUserData] = useState({});
+
+  useEffect(() => {
+    const fetchMyData = () => {
+      getMyProfileData().then((data) => {
+        setUserData(data);
+      });
+    };
+
+    fetchMyData();
+  }, [user]);
 
   return (
     <Box
@@ -60,7 +74,7 @@ const Navbar = () => {
                 Meditopia H. Portal
               </Text>
               <Text fontSize="xs" color="white">
-                {user.displayName}
+                {userData.displayName}
               </Text>
             </Box>
           </Flex>
@@ -90,7 +104,7 @@ const Navbar = () => {
             </Icon>
             <Menu>
               <MenuButton>
-                <Avatar size={"sm"} />
+                <Avatar name={userData.name} size={"sm"} />
               </MenuButton>
 
               <MenuList
@@ -99,7 +113,7 @@ const Navbar = () => {
                 alignItems={"center"}
               >
                 <Box>
-                  <Image src={user?.photoURL} width="200px" />
+                  {/* <Image src={user?.photoURL} width="200px" /> */}
                   <Divider />
                 </Box>
 
