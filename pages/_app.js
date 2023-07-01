@@ -32,8 +32,8 @@ export default function App({ Component, pageProps }) {
       <SEOTags
         title="Med-Ethiopia Hospital"
         description={des}
-        image="./logo.png"
-        url="www.med-ethiopia.hospital.com"
+        image="https://med-ethiopia-hospital.vercel.app/Hospital.svg"
+        url="https://med-ethiopia-hospital.vercel.app"
         card="summary_large_image"
       />
       <ChakraProvider theme={theme}>
